@@ -1,0 +1,3 @@
+[submodule "comfort_data"]
+	path = comfort_data
+	url = https://gitlab.com/rafaie/comfort_data
