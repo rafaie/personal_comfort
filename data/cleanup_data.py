@@ -1,7 +1,8 @@
 import csv
 import ntpath
-import glob
+import sys
 import os
+import glob
 
 # base_path = '../sample_data'
 base_path = '../comfort_data'
@@ -10,15 +11,15 @@ final_path = 'cleaned'
 # Data tyoe for the output
 ALL_DATA = 0
 TYPE_1 = 1
-TYPE_2 = 2
+TYPE_10 = 10
 
 
 def calc_avg_Value_during(base_data, col_num, duration):
     pass
 
 
-def clean_file(file, all_data=0):
-    print ("---------------------------------------------------------------")
+def clean_file(file, data_type_in_out=0):
+    print ("-----------------------")
     print (file)
     reader = csv.reader(open(file, "r"), delimiter=',')
 
@@ -30,7 +31,7 @@ def clean_file(file, all_data=0):
             d = cell
             try:
                 d = round(float(d), 4)
-            except Exception as e:
+            except Exception:
                 pass
             data.append(d)
         base_data.append(data)
@@ -54,7 +55,7 @@ def clean_file(file, all_data=0):
         data_type = 10
         try:
             data_type = int(row[1])
-        except Exception as e:
+        except Exception:
             pass
 
         if len(last_row) <= 0:
@@ -87,11 +88,15 @@ def clean_file(file, all_data=0):
 
     # write in to csv
     file_name = ntpath.basename(file)
+    print(data_type_in_out, TYPE_1)
     with open(os.path.join(final_path, file_name), "w") as csvfile:
         writer = csv.writer(csvfile, delimiter=',', quotechar='\'',
                             quoting=csv.QUOTE_MINIMAL)
         for row in base_data2:
-            writer.writerow(row)
+            if (data_type_in_out == TYPE_1 and row[1] == TYPE_1) or \
+               (data_type_in_out == TYPE_10 and row[1] == TYPE_10) or \
+               data_type_in_out == ALL_DATA:
+                writer.writerow(row)
 
     # fmt = '%Y-%m-%d %H:%M:%S'
     # d1 = datetime.strptime('2010-01-01 17:31:22', fmt)
@@ -100,5 +105,16 @@ def clean_file(file, all_data=0):
 
 
 if __name__ == "__main__":
+    data_type_in_out = ALL_DATA
+
+    if len(sys.argv) > 1:
+        try:
+            data_type_in_out = int(sys.argv[1])
+
+            if data_type_in_out != TYPE_1 and data_type_in_out != TYPE_10:
+                data_type_in_out = ALL_DATA
+        except Exception:
+            pass
+
     for file in glob.glob(os.path.join(base_path, "*.csv"))[:1]:
-        clean_file(file)
+        clean_file(file, data_type_in_out)
