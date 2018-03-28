@@ -3,12 +3,21 @@ import ntpath
 import glob
 import os
 
-base_path = '../sample_data'
-# base_path = '../comfort_data'
+# base_path = '../sample_data'
+base_path = '../comfort_data'
 final_path = 'cleaned'
 
+# Data tyoe for the output
+ALL_DATA = 0
+TYPE_1 = 1
+TYPE_2 = 2
 
-for file in glob.glob(os.path.join(base_path, "*.csv"))[:1]:
+
+def calc_avg_Value_during(base_data, col_num, duration):
+    pass
+
+
+def clean_file(file, all_data=0):
     print ("---------------------------------------------------------------")
     print (file)
     reader = csv.reader(open(file, "r"), delimiter=',')
@@ -30,15 +39,17 @@ for file in glob.glob(os.path.join(base_path, "*.csv"))[:1]:
     base_data2 = []
     base_data[0].append('met')
     base_data2.append(base_data[0])
-    # base_data2.append(base_data[0])
+
     last_row = []
     roomTempreture = 0
     roomHumidity = 0
     locationType = 0
     clothingScore = 0
     clothing = 0
-    for i in range(len(base_data[1:])):
-        row = base_data[i+1]
+
+    for i in range(1, len(base_data)):
+        row = base_data[i]
+
         # process to chose the base_row
         data_type = 10
         try:
@@ -86,3 +97,8 @@ for file in glob.glob(os.path.join(base_path, "*.csv"))[:1]:
     # d1 = datetime.strptime('2010-01-01 17:31:22', fmt)
     # d2 = datetime.strptime('2010-01-01 17:35:22', fmt)
     # print (d2-d1).seconds/60
+
+
+if __name__ == "__main__":
+    for file in glob.glob(os.path.join(base_path, "*.csv"))[:1]:
+        clean_file(file)
