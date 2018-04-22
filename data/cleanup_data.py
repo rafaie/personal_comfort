@@ -4,6 +4,9 @@ import sys
 import os
 import glob
 import datetime
+import pandas as pd
+import numpy as np
+
 
 # base_path = '../sample_data'
 base_path = '../comfort_data'
@@ -64,12 +67,19 @@ def clean_file(file, data_type_in_out=0):
                       ['met_30min', 'roomTempreture_30min'] +
                       ['roomHumidity_30min'])
 
+    print(base_data2)
     last_row = []
     roomTempreture = 0
     roomHumidity = 0
     locationType = 0
     clothingScore = 0
     clothing = 0
+
+    for i in range(1, len(base_data)):
+        try:
+            base_data[i][49] = (base_data[i][49] - 32) * 5/9.0
+        except:
+            pass
 
     for i in range(1, len(base_data)):
         row = base_data[i]
@@ -116,22 +126,27 @@ def clean_file(file, data_type_in_out=0):
 
             last_row = row
 
-    # write in to csv
-    file_name = ntpath.basename(file)
-    print(data_type_in_out, TYPE_1)
-    with open(os.path.join(final_path, file_name), "w") as csvfile:
-        writer = csv.writer(csvfile, delimiter=',', quotechar='\'',
-                            quoting=csv.QUOTE_MINIMAL)
-        for row in base_data2:
-            if (data_type_in_out == TYPE_1 and row[1] == TYPE_1) or \
-               (data_type_in_out == TYPE_10 and row[1] == TYPE_10) or \
-               data_type_in_out == ALL_DATA:
-                writer.writerow(row)
+    fmt = '%m/%d/%Y %H:%M:%S'
+    # d = datetime.datetime.strptime(base_data[l][0], fmt)
 
-    # fmt = '%Y-%m-%d %H:%M:%S'
-    # d1 = datetime.strptime('2010-01-01 17:31:22', fmt)
-    # d2 = datetime.strptime('2010-01-01 17:35:22', fmt)
-    # print (d2-d1).seconds/60
+    d = pd.DataFrame(base_data2[1:], columns=base_data2[0])
+    print(d.columns)
+    d['hour'] = d['currentTime'].apply(
+        lambda x: datetime.datetime.strptime(x, fmt).hour)
+
+    d['vote2'] = d[' vote'].apply(
+        lambda x: 0 if x >= -1 and x <= 1 else 1 * np.sign(x))
+
+    print(d.shape)
+    d = d[(d['hour'] >= 8) & (d['hour'] <= 21)]
+    if data_type_in_out == TYPE_1:
+        d = d[(d[' Data Type'] == TYPE_1)]
+    elif data_type_in_out == TYPE_10:
+        d = d[(d[' Data Type'] == TYPE_10)]
+    print(d.shape)
+
+    file_name = ntpath.basename(file)
+    d.to_csv(os.path.join(final_path, file_name))
 
 
 if __name__ == "__main__":
@@ -146,5 +161,5 @@ if __name__ == "__main__":
         except Exception:
             pass
 
-    for file in glob.glob(os.path.join(base_path, "*.csv"))[:1]:
+    for file in glob.glob(os.path.join(base_path, "*.csv")):
         clean_file(file, data_type_in_out)
