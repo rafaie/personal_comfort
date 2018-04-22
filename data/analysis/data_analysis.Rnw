@@ -1,0 +1,43 @@
+\documentclass{article}
+
+\begin{document}
+
+<<results ='asis', echo=FALSE, message=FALSE,warning=FALSE, fig.width=5.5, fig.asp=0.75>>=
+library(data.table)
+library(dplyr)
+library(ggplot2)
+library(xtable)
+library(comf)
+library(weathermetrics)
+library(lubridate)
+library(gridExtra)
+
+base_path='../cleaned/'
+file_list <- list.files(path=base_path, pattern = "*.csv$")
+
+for(f_name in file_list){
+  #f_name <- 'mostafa.csv'
+  base_data <- read.csv(paste(base_path, f_name, sep=""))
+  data <- base_data[,c('vote','heartRate', 'resistance', 'skinTemperature', 
+                       'roomTempreture', 'roomHumidity', 
+                       'clothingScore', 'met', 'met_15min', 'roomTempreture_15min',
+                       'roomHumidity_15min', 'met_30min', 'roomTempreture_30min',
+                       'roomHumidity_30min')]
+  
+  cat(paste('\\section{Analyzing the "', f_name, '" file}'))
+  
+  for (i in c(2:length(data)) ){
+    g1<- ggplot(data, aes(x=vote, y=data[, i])) + 
+      geom_boxplot() +
+      facet_grid(vote~.) + theme_light()+
+      ylab(names(data)[i]) 
+  
+    print(g1)
+  }
+  print(qplot(base_data$vote, geom="histogram") + theme_light())
+  print(qplot(base_data$vote2, geom="histogram") + theme_light())
+}
+@
+
+
+\end{document}
