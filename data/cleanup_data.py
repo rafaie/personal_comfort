@@ -64,8 +64,11 @@ def clean_file(file, data_type_in_out=0):
     base_data2 = []
     base_data2.append(base_data[0] + ['met', 'met_15min'] +
                       ['roomTempreture_15min', 'roomHumidity_15min'] +
+                      ['resistance_15min', 'heartRate_15min'] +
+                      ['skinTemperature_15min'] +
                       ['met_30min', 'roomTempreture_30min'] +
-                      ['roomHumidity_30min'])
+                      ['roomHumidity_30min', 'resistance_30min'] +
+                      ['heartRate_30min', 'skinTemperature_30min'])
 
     print(base_data2)
     last_row = []
@@ -120,9 +123,11 @@ def clean_file(file, data_type_in_out=0):
 
             # Add Average for the duration
             base_data2[-1] += calc_avg_Value_during(base_data2, i,
-                                                    [54, 49, 50], 15)
+                                                    [54, 49, 50, 16, 3, 23],
+                                                    15)
             base_data2[-1] += calc_avg_Value_during(base_data2, i,
-                                                    [54, 49, 50], 30)
+                                                    [54, 49, 50, 16, 3, 23],
+                                                    30)
 
             last_row = row
 
@@ -134,15 +139,15 @@ def clean_file(file, data_type_in_out=0):
     d['hour'] = d['currentTime'].apply(
         lambda x: datetime.datetime.strptime(x, fmt).hour)
 
-    d['vote2'] = d[' vote'].apply(
+    d['vote2'] = d['vote'].apply(
         lambda x: 0 if x >= -1 and x <= 1 else 1 * np.sign(x))
 
     print(d.shape)
     d = d[(d['hour'] >= 8) & (d['hour'] <= 21)]
     if data_type_in_out == TYPE_1:
-        d = d[(d[' Data Type'] == TYPE_1)]
+        d = d[(d['Data Type'] == TYPE_1)]
     elif data_type_in_out == TYPE_10:
-        d = d[(d[' Data Type'] == TYPE_10)]
+        d = d[(d['Data Type'] == TYPE_10)]
     print(d.shape)
 
     file_name = ntpath.basename(file)
