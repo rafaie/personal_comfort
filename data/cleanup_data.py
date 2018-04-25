@@ -142,7 +142,28 @@ def clean_file(file, data_type_in_out=0):
     d['vote2'] = d['vote'].apply(
         lambda x: 0 if x >= -1 and x <= 1 else 1 * np.sign(x))
 
+    def gen_vote3(x):
+        out = 0
+        if x >= 4:
+            out = 2
+        elif x >= 2:
+            out = 1
+        elif x <= -4:
+            out = -2
+        elif x <= -2:
+            out = -1
+        return out
+
+    d['vote3'] = d['vote'].apply(
+        lambda x: gen_vote3(x))
+
     print(d.shape)
+    d = d[(d['heartRate'] >= 40) & (d['hour'] <= 220)]
+    d = d[(d['skinTemperature'] >= 10) & (d['skinTemperature'] <= 45)]
+    d = d[(d['met'] >= 0.4) & (d['met'] <= 8)]
+    d = d[(d['roomTempreture'] >= 0) & (d['roomTempreture'] <= 40)]
+    d = d[(d['roomHumidity'] >= 0) & (d['roomHumidity'] <= 100)]
+
     d = d[(d['hour'] >= 8) & (d['hour'] <= 21)]
     if data_type_in_out == TYPE_1:
         d = d[(d['Data Type'] == TYPE_1)]
