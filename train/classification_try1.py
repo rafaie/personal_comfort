@@ -241,24 +241,24 @@ def do_classification(clm, data_fname, clm_type):
 
 clmns = 5 * ['']
 clmns[0] = ['roomTempreture', 'roomHumidity', 'heartRate', 'skinTemperature',
-            'clothingScore', 'met', 'resistance', 'vote', 'vote2']
+            'clothingScore', 'met', 'resistance', 'vote2', 'vote3']
 
 clmns[1] = ['roomTempreture', 'roomHumidity', 'heartRate', 'skinTemperature',
-            'clothingScore', 'met', 'vote', 'vote2']
+            'clothingScore', 'met', 'vote2', 'vote3']
 
 clmns[2] = ['roomTempreture', 'roomHumidity', 'heartRate', 'skinTemperature',
             'clothingScore', 'met', 'resistance', 'met_15min',
             'roomTempreture_15min', 'roomHumidity_15min', 'resistance_15min',
             'heartRate_15min', 'skinTemperature_15min', 'met_30min',
             'roomTempreture_30min', 'roomHumidity_30min', 'resistance_30min',
-            'heartRate_30min', 'skinTemperature_30min', 'vote', 'vote2']
+            'heartRate_30min', 'skinTemperature_30min', 'vote2', 'vote3']
 
 clmns[3] = ['roomTempreture', 'roomHumidity', 'heartRate', 'skinTemperature',
             'clothingScore', 'met', 'met_15min',
             'roomTempreture_15min', 'roomHumidity_15min',
             'heartRate_15min', 'skinTemperature_15min', 'met_30min',
             'roomTempreture_30min', 'roomHumidity_30min',
-            'heartRate_30min', 'skinTemperature_30min', 'vote', 'vote2']
+            'heartRate_30min', 'skinTemperature_30min', 'vote2', 'vote3']
 
 
 if __name__ == "__main__":
