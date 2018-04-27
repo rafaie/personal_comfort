@@ -235,6 +235,7 @@ def do_classification(clm, data_fname, clm_type):
 
     for t in [0, 1]:
         clf = NearestCentroid()
+        clf = RadiusNeighborsClassifier()
         do_cross_validation(ML_NAME, clf, X_train, Y_train[t], t,
                             csv_out, fname, 0)
 
