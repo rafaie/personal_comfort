@@ -160,9 +160,7 @@ def do_classification(clm, data_fname, clm_type):
 
     for t in [0, 1]:
         for n in noestimator:
-            clf = AdaBoostClassifier(algorithm='SAMME.R', base_estimator=None,
-                                     learning_rate=0.1, n_estimators=n,
-                                     random_state=None)
+            clf = RandomForestClassifier(n_estimators=n)
             do_cross_validation(ML_NAME, clf, X_train, Y_train[t], t, csv_out,
                                 fname, n)
 
@@ -215,29 +213,44 @@ def do_classification(clm, data_fname, clm_type):
                                 fname, c)
 
     # Model: KNeighborsClassifier
-    ML_NAME = 'k-nearest neighbors Classifier'
+    ML_NAME = 'KNeighborsClassifier'
     n_neighbors = np.concatenate((np.arange(1, 10),
                                   np.arange(10, 20, 2), np.arange(20, 50, 5),
                                   np.arange(50, 150, 10)))
 
     for t in [0, 1]:
         for n in n_neighbors:
-            if n < len(X_train)/2:
-                try:
-                    clf = KNeighborsClassifier(n_neighbors=n)
-                    do_cross_validation(ML_NAME, clf, X_train, Y_train[t], t,
-                                        csv_out, fname, n)
-                except:
-                    pass
+            try:
+                clf = KNeighborsClassifier(n_neighbors=n)
+                do_cross_validation(ML_NAME, clf, X_train, Y_train[t], t,
+                                    csv_out, fname, n)
+            except:
+                pass
 
-    # Model: RadiusNeighborsClassifier
+    # Model: Radius Neighbors Classifier
+    ML_NAME = 'Radius Neighbors Classifier'
+    n_neighbors = np.concatenate((np.arange(1, 10), np.arange(10, 20, 2),
+                                  np.arange(20, 50, 5),
+                                  np.arange(50, 150, 10)))
+
+    for t in [0, 1]:
+        for n in n_neighbors:
+            try:
+                clf = RadiusNeighborsClassifier(radius=n)
+                do_cross_validation(ML_NAME, clf, X_train, Y_train[t], t,
+                                    csv_out, fname, n)
+            except:
+                pass
+
+    # Model: NearestCentroid
     ML_NAME = 'Nearest Centroid Classifier'
 
     for t in [0, 1]:
         clf = NearestCentroid()
-        clf = RadiusNeighborsClassifier()
         do_cross_validation(ML_NAME, clf, X_train, Y_train[t], t,
                             csv_out, fname, 0)
+
+    fi.close()
 
 
 clmns = 5 * ['']
