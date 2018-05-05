@@ -1,0 +1,94 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{lipsum} % for dummy text
+\usepackage[table,dvipsnames]{xcolor}   % Provides coloring for tables and text
+\usepackage{ltablex}                    % Customized table formatting (uses tabularx and longtable)
+\usepackage{environ}
+\usepackage{booktabs}
+\usepackage{multirow}
+
+
+\begin{document}
+
+<<echo=FALSE, message=FALSE, warning=FALSE, fig.width=11, fig.asp=0.6>>=
+
+library(data.table)
+library(dplyr)
+library(ggplot2)
+library(xtable)
+library(comf)
+library(weathermetrics)
+library(lubridate)
+library(gridExtra)
+library(knitr)
+options(kableExtra.latex.load_packages = FALSE)
+library(kableExtra)
+
+
+base_data=read.csv('data/all.csv', header = FALSE)
+names(base_data) = c('Dataset', 'clm_type', 'ML_NAME', 'tain_type', 'ML Param', 'f_name', 'Accuracy Score')
+base_data = base_data[base_data$tain_type == 0,]
+base_data$type=unlist(lapply(base_data$clm_type, function(x) if (x=='type0') 'With GSR' else 'Without GSR'))
+base_data <- base_data[!(base_data$ML_NAME == 'Decision Tree' & base_data$`ML Param` > 15), ]
+base_data <- base_data[!(base_data$ML_NAME == 'Support Vector Machines - RBF' & base_data$`ML Param` > 40), ]
+@
+
+<<results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=8.5, fig.asp=0.45>>=
+for (ml in unique(base_data$ML_NAME)){
+  cat(paste('\\section{', ml, '}'))
+  data_ml <- base_data[base_data$ML_NAME == ml,]
+  g<-ggplot(data_ml, aes(`ML Param`, `Accuracy Score`, color=`Dataset`)) +
+         geom_line() + theme_light() + facet_grid(.~type) + theme(legend.position="bottom")
+  print(g)
+  b <- data_ml %>% group_by(Dataset,ML_NAME, type) %>% summarise(max=max(`Accuracy Score`), min=min(`Accuracy Score`), mean=mean(`Accuracy Score`))
+  #print(xtable(b))
+  
+  t <- kable(b[-2], format = "latex", booktabs = T)  %>%
+  column_spec(1, bold=T) %>%
+  collapse_rows(columns = 1, latex_hline = "major")
+  
+  print(t)
+}
+
+@
+
+
+\section{Best ML}
+<<results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=8, fig.asp=0.8>>=
+  b <- base_data[order(base_data$`Accuracy Score`, decreasing = TRUE),]
+  names(b)[7] = 'Accuracy'
+  xtable(head(b))
+  
+@
+
+\section{Worst ML}
+<<results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=8, fig.asp=0.8>>=
+  b <- base_data[order(base_data$`Accuracy Score`, decreasing = FALSE),]
+  names(b)[7] = 'Accuracy'
+  xtable(head(b))
+  
+@
+
+
+<<>>=
+data <- base_data %>% group_by(Dataset,ML_NAME, type) %>% summarise(max=max(`Accuracy Score`), min=min(`Accuracy Score`), mean=mean(`Accuracy Score`))
+options(knitr.table.format = "html") 
+#data %>%
+#  kable("latex") %>%
+#  kable_styling()
+dt <- mtcars[1:5, 1:6]
+
+b <- kable(data, format = "latex", booktabs = T)  %>%
+ # kable_styling(latex_options = "striped")%>%
+  column_spec(1, bold=T) %>%
+collapse_rows(columns = 1:2, latex_hline = "major") 
+  
+
+b
+write.csv(data, 'data.csv')
+@
+
+
+
+\end{document}

@@ -1,0 +1,116 @@
+\documentclass{article}
+
+\begin{document}
+
+<<echo=FALSE, message=FALSE, warning=FALSE, fig.width=11, fig.asp=0.6>>=
+library(data.table)
+library(dplyr)
+library(ggplot2)
+library(xtable)
+library(comf)
+library(weathermetrics)
+library(lubridate)
+library(gridExtra)
+
+base_data=read.csv('data/all.csv', header = FALSE)
+names(base_data) = c('Dataset', 'clm_type', 'ML_NAME', 'tain_type', 'ML Param', 'f_name', 'Accuracy Score')
+@
+
+\section{Best ML}
+<<results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=8, fig.asp=0.8>>=
+  b <- base_data[order(base_data$`Accuracy Score`, decreasing = TRUE),]
+  names(b)[7] = 'Accuracy'
+  xtable(head(b))
+  
+@
+
+\section{Worst ML}
+<<results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=8, fig.asp=0.8>>=
+  b <- base_data[order(base_data$`Accuracy Score`, decreasing = FALSE),]
+  names(b)[7] = 'Accuracy'
+  xtable(head(b))
+  
+@
+
+
+
+<<results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=8, fig.asp=0.8>>=
+
+for (ml in unique(base_data$ML_NAME)){
+  cat(paste('\\section{', ml, '}'))
+  data_ml <- base_data[base_data$ML_NAME == ml,]
+  g<-ggplot(data_ml, aes(`ML Param`, `Accuracy Score`, color=`Dataset`)) +
+         geom_line() + theme_light() + facet_grid(tain_type~clm_type)
+  print(g)
+}
+@
+
+\section{Personal Model \& General Model - without Resistance - Vote group - 1}
+<<results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.asp=0.6>>=
+clm0_vote1 <- base_data[base_data$tain_type==0 & base_data$clm_type =="type1",]
+
+for (ml in unique(base_data$ML_NAME)){
+    #ml = 'Decision Tree'
+    cat(paste('\\subsection{', ml, '}'))
+    clm0_vote1_tmp <- clm0_vote1[clm0_vote1$ML_NAME == ml,]
+    
+    g<-ggplot(clm0_vote1_tmp, aes(`ML Param`, `Accuracy Score`, color=`Dataset`)) +
+           geom_line() + theme_light()
+    print(g)  
+  
+  }
+
+@
+
+\section{Personal Model \& General Model - without Resistance - Vote group - 2}
+<<results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.asp=0.6>>=
+clm1_vote1 <- base_data[base_data$tain_type==1 & base_data$clm_type =="type1",]
+
+for (ml in unique(base_data$ML_NAME)){
+    #ml = 'Decision Tree'
+    cat(paste('\\subsection{', ml, '}'))
+    clm1_vote1_tmp <- clm1_vote1[clm1_vote1$ML_NAME == ml,]
+    
+    g<-ggplot(clm1_vote1_tmp, aes(`ML Param`, `Accuracy Score`, color=`Dataset`)) +
+           geom_line() + theme_light()
+    print(g)  
+  
+  }
+
+@
+
+\section{Personal Model \& General Model - With Resistance - Vote group - 1}
+<<results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.asp=0.6>>=
+clm0_vote0 <- base_data[base_data$tain_type==0 & base_data$clm_type =="type0",]
+
+for (ml in unique(base_data$ML_NAME)){
+    #ml = 'Decision Tree'
+    cat(paste('\\subsection{', ml, '}'))
+    clm0_vote0_tmp <- clm0_vote0[clm0_vote0$ML_NAME == ml,]
+    
+    g<-ggplot(clm0_vote0_tmp, aes(`ML Param`, `Accuracy Score`, color=`Dataset`)) +
+           geom_line() + theme_light()
+    print(g)  
+  
+  }
+
+@
+
+\section{Personal Model \& General Model - With Resistance - Vote group - 2}
+<<results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.asp=0.6>>=
+clm1_vote0 <- base_data[base_data$tain_type==1 & base_data$clm_type =="type0",]
+
+for (ml in unique(base_data$ML_NAME)){
+    #ml = 'Decision Tree'
+    cat(paste('\\subsection{', ml, '}'))
+    clm1_vote0_tmp <- clm1_vote0[clm1_vote0$ML_NAME == ml,]
+    
+    g<-ggplot(clm1_vote0_tmp, aes(`ML Param`, `Accuracy Score`, color=`Dataset`)) +
+           geom_line() + theme_light()
+    print(g)  
+  
+  }
+
+@
+
+\end{document}
